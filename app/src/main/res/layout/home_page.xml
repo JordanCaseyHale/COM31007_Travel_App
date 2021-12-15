@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".view.MainActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background_3"
+        tools:ignore="MissingConstraints" />
+
+
+    <Button
+        android:id="@+id/homePage_MapButton"
+        android:background="@drawable/gradient"
+        android:layout_width="269dip"
+        android:layout_height="108dip"
+        android:text="Map"
+        app:layout_constraintBottom_toTopOf="@+id/homePage_MapHistory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/homePage_PicturePreview" />
+
+    <Button
+        android:id="@+id/homePage_JourneyButton"
+        android:layout_width="269dip"
+        android:layout_height="108dip"
+        android:text="Journey"
+        app:layout_constraintBottom_toTopOf="@+id/homePage_PicturePreview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/homePage_PicturePreview"
+        android:layout_width="269dip"
+        android:layout_height="108dip"
+        android:text="Picture Preview"
+        app:layout_constraintBottom_toTopOf="@+id/homePage_MapButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/homePage_JourneyButton" />
+
+    <Button
+        android:id="@+id/homePage_MapHistory"
+        android:layout_width="269dip"
+        android:layout_height="108dip"
+        android:text="Map History"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/homePage_MapButton" />
+</androidx.constraintlayout.widget.ConstraintLayout>

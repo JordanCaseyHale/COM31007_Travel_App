@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/HomePage">
+
+    <fragment
+        android:id="@+id/HomePage"
+        android:name="com.example.mobilesoftwareassignment.view.HomePage"
+        android:label="Home Page"
+        tools:layout="@layout/home_page">
+
+        <action
+            android:id="@+id/action_HomePage_to_JourneyStart"
+            app:destination="@id/JourneyStart" />
+        <action
+            android:id="@+id/action_HomePage_to_MapHistory"
+            app:destination="@id/MapHistory" />
+        <action
+            android:id="@+id/action_HomePage_to_Map"
+            app:destination="@id/Map" />
+        <action
+            android:id="@+id/action_HomePage_to_BrowsePreviews"
+            app:destination="@id/BrowsePreviews" />
+    </fragment>
+    <fragment
+        android:id="@+id/JourneyStart"
+        android:name="com.example.mobilesoftwareassignment.view.JourneyStartFragment"
+        android:label="Journey Start"
+        tools:layout="@layout/journey_start">
+
+        <action
+            android:id="@+id/action_JourneyStart_to_JourneyInProgress"
+            app:destination="@id/JourneyInProgress" />
+    </fragment>
+    <fragment
+        android:id="@+id/JourneyInProgress"
+        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:label="Journey In Progress"
+        tools:layout="@layout/journey_in_progress">
+
+        <action
+            android:id="@+id/action_JourneyInProgress_to_JourneyStart"
+            app:destination="@id/JourneyStart" />
+    </fragment>
+    <fragment
+        android:id="@+id/MapHistory"
+        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:label="Map History"
+        tools:layout="@layout/map_history">
+    </fragment>
+    <fragment
+        android:id="@+id/BrowsePreviews"
+        android:name="com.example.mobilesoftwareassignment.view.BrowsePreviewsFragment"
+        android:label="Browse Previews"
+        tools:layout="@layout/activity_gallery">
+    </fragment>
+    <fragment
+        android:id="@+id/PreviewsMoreDetails"
+        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:label="Preview More Details"
+        tools:layout="@layout/activity_show_image">
+    </fragment>
+    <fragment
+        android:id="@+id/Map"
+        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:label="Map"
+        tools:layout="@layout/map">
+    </fragment>
+</navigation>
