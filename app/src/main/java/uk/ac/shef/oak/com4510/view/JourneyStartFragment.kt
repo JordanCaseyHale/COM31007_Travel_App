@@ -1,5 +1,6 @@
-package com.example.mobilesoftwareassignment.view
+package uk.ac.shef.oak.com4510.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,9 +8,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.example.mobilesoftwareassignment.R
-import com.example.mobilesoftwareassignment.databinding.JourneyStartBinding
-import com.example.mobilesoftwareassignment.viewmodel.MainViewModel
+import uk.ac.shef.oak.com4510.MapsActivity
+import uk.ac.shef.oak.com4510.view.MainActivity
+import uk.ac.shef.oak.com4510.R
+import uk.ac.shef.oak.com4510.databinding.JourneyStartBinding
+import uk.ac.shef.oak.com4510.viewmodel.MainViewModel
 
 class JourneyStartFragment : Fragment() {
 

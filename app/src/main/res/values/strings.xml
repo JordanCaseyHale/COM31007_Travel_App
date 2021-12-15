@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">COM31007_Travel_App</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="Journey_Title">New Visit</string>
 </resources>

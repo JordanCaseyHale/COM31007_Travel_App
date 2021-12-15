@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/HomePage"
-        android:name="com.example.mobilesoftwareassignment.view.HomePage"
+        android:name="uk.ac.shef.oak.com4510.view.HomePage"
         android:label="Home Page"
         tools:layout="@layout/home_page">
 
@@ -26,7 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/JourneyStart"
-        android:name="com.example.mobilesoftwareassignment.view.JourneyStartFragment"
+        android:name="uk.ac.shef.oak.com4510.view.JourneyStartFragment"
         android:label="Journey Start"
         tools:layout="@layout/journey_start">
 
@@ -36,9 +36,9 @@
     </fragment>
     <fragment
         android:id="@+id/JourneyInProgress"
-        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
         android:label="Journey In Progress"
-        tools:layout="@layout/journey_in_progress">
+        tools:layout="@layout/activity_maps">
 
         <action
             android:id="@+id/action_JourneyInProgress_to_JourneyStart"
@@ -46,25 +46,25 @@
     </fragment>
     <fragment
         android:id="@+id/MapHistory"
-        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
         android:label="Map History"
         tools:layout="@layout/map_history">
     </fragment>
     <fragment
         android:id="@+id/BrowsePreviews"
-        android:name="com.example.mobilesoftwareassignment.view.BrowsePreviewsFragment"
+        android:name="uk.ac.shef.oak.com4510.view.BrowsePreviewsFragment"
         android:label="Browse Previews"
         tools:layout="@layout/activity_gallery">
     </fragment>
     <fragment
         android:id="@+id/PreviewsMoreDetails"
-        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
         android:label="Preview More Details"
         tools:layout="@layout/activity_show_image">
     </fragment>
     <fragment
         android:id="@+id/Map"
-        android:name="com.example.mobilesoftwareassignment.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
         android:label="Map"
         tools:layout="@layout/map">
     </fragment>

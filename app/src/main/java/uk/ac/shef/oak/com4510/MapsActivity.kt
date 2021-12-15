@@ -2,6 +2,8 @@ package uk.ac.shef.oak.com4510
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.PendingIntent.getActivity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +18,7 @@ import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import uk.ac.shef.oak.com4510.databinding.ActivityMapsBinding
+import uk.ac.shef.oak.com4510.view.MainActivity
 import java.text.DateFormat
 import java.util.*
 
@@ -23,12 +26,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var mLocationRequest: LocationRequest
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private lateinit var binding: ActivityMapsBinding
     private val mapView: MapView? = null
     private var mButtonStart: Button? = null
     private var mButtonEnd: Button? = null
+    private var mButtonBack: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -40,14 +46,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (mButtonEnd != null) mButtonEnd!!.isEnabled = true
             mButtonStart!!.isEnabled = false
         }
-        mButtonStart!!.isEnabled = true
+        mButtonStart!!.isEnabled = false
         mButtonEnd = findViewById<View>(R.id.button_end) as Button
         mButtonEnd!!.setOnClickListener {
             stopLocationUpdates()
             if (mButtonStart != null) mButtonStart!!.isEnabled = true
             mButtonEnd!!.isEnabled = false
         }
-        mButtonEnd!!.isEnabled = false
+        mButtonEnd!!.isEnabled = true
+        mButtonBack = findViewById<View>(R.id.JourneyBack) as Button
+        mButtonBack!!.setOnClickListener {
+            Log.i("Journey", "return to journey start")
+            val intent = Intent (mapFragment.activity, MainActivity::class.java)
+            mapFragment.requireActivity().startActivity(intent)
+        }
     }
 
     private fun startLocationUpdates() {

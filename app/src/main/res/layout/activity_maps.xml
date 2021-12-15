@@ -51,6 +51,17 @@
                 android:scaleType="fitCenter"
                 android:text="Stop" />
 
+            <Button
+                android:id="@+id/JourneyBack"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:background="@null"
+                android:gravity="center"
+                android:scaleType="fitCenter"
+                android:text="Back" />
+
         </LinearLayout>
     </LinearLayout>
 
