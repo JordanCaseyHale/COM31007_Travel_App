@@ -20,6 +20,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
@@ -49,6 +51,22 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var activity: Activity
     private lateinit var easyImage: EasyImage
 
+    val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val pos = result.data?.getIntExtra("position", -1)!!
+                val id = result.data?.getIntExtra("id", -1)!!
+                val del_flag = result.data?.getIntExtra("deletion_flag", -1)!!
+                if (pos != -1 && id != -1) {
+                    if (result.resultCode == Activity.RESULT_OK) {
+                        when(del_flag){
+                            -1, 0 -> mAdapter.notifyDataSetChanged()
+                            else -> mAdapter.notifyItemRemoved(pos)
+                        }
+                    }
+                }
+            }
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -67,10 +85,7 @@ class BrowseActivity : AppCompatActivity() {
         daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
 
         setContentView(R.layout.activity_gallery)
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
-
         initData()
-
         activity = this
         Log.d("TAG", "message")
         mRecyclerView = findViewById(R.id.grid_recycler_view)
@@ -79,8 +94,6 @@ class BrowseActivity : AppCompatActivity() {
         mRecyclerView.layoutManager = GridLayoutManager(this, numberOfColumns)
         mAdapter = MyAdapter(myDataset) as RecyclerView.Adapter<RecyclerView.ViewHolder>
         mRecyclerView.adapter = mAdapter
-
-
         // required by Android 6.0 +
         checkPermissions(applicationContext)
         initEasyImage()
@@ -114,26 +127,6 @@ class BrowseActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-
-//    fun loadFile(){
-//        val dir = File(this.getExternalFilesDir(Environment.DIRECTORY_PICTURES), GALLERY_DIR)
-////        for(file in dir.listFiles()){
-////            Log.e(GALLERY_DIR, file.absolutePath)
-////        }
-//        Toast.makeText(this, dir.absolutePath, Toast.LENGTH_LONG).show()
-//    }
-
-//    fun getAppSpecificAlbumStorageDir(): File? {
-//        // Get the pictures directory that's inside the app-specific directory on
-//        // external storage.
-//        val file = File(context.getExternalFilesDir(
-//            Environment.DIRECTORY_PICTURES), albumName)
-//        if (!file?.mkdirs()) {
-//            Log.e(LOG_TAG, "Directory not created")
-//        }
-//        return file
-//    }
-
     /**
      * it initialises EasyImage
      */
@@ -150,13 +143,6 @@ class BrowseActivity : AppCompatActivity() {
      * Init data by loading from the database
      */
     private fun initData() {
-//        repeat(5){
-//            myDataset.add(ImageElement(R.drawable.joe1))
-//            myDataset.add(ImageElement(R.drawable.joe2))
-//            myDataset.add(ImageElement(R.drawable.joe3))
-//        }
-        // Your code here
-
         GlobalScope.launch {
             daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
             var data = daoObj.getItems()
@@ -303,12 +289,6 @@ class BrowseActivity : AppCompatActivity() {
      * @return
      */
     private fun getImageData(returnedPhotos: Array<MediaFile>): List<ImageData> {
-//        val imageElementList: MutableList<ImageElement> = ArrayList<ImageElement>()
-//        for (file in returnedPhotos) {
-//            val element = ImageElement(file)
-//            imageElementList.add(element)
-//        }
-//        return imageElementList
         val imageDataList: MutableList<ImageData> = ArrayList<ImageData>()
         for (mediaFile in returnedPhotos) {
             var imageData = ImageData(

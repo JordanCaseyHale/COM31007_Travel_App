@@ -1,7 +1,9 @@
 package uk.ac.shef.oak.com4510.data
 
-import android.graphics.Bitmap
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
 /**
  * Entity data class represents a single row in the database.

@@ -1,11 +1,6 @@
 package uk.ac.shef.oak.com4510.data
 
-import android.graphics.Bitmap
 import androidx.room.*
-import androidx.room.ForeignKey.CASCADE
-import java.sql.Date
-import java.sql.Time
-
 
 /**
  * Entity data class represents a single row in the database.
