@@ -1,5 +1,6 @@
 package uk.ac.shef.oak.com4510
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,10 +12,12 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import uk.ac.shef.oak.com4510.data.ImageData
 import kotlinx.coroutines.*
+import uk.ac.shef.oak.com4510.view.BrowseActivity
+import uk.ac.shef.oak.com4510.view.BrowsePreviewsFragment
 
 class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private lateinit var context: Context
-
+    private lateinit var activity: Activity
     constructor(items: List<ImageData>) : super() {
         MyAdapter.items = items as MutableList<ImageData>
     }
@@ -51,9 +54,13 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
             }
 
             holder.itemView.setOnClickListener(View.OnClickListener {
-                val intent = Intent(context, ShowImageActivity::class.java)
-                intent.putExtra("position", position)
-                context.startActivity(intent)
+                val intent = Intent(context, BrowseActivity::class.java)
+                val mainActivityContext = activity as BrowseActivity
+                mainActivityContext.startForResult.launch(
+                    Intent(context, ShowImageActivity::class.java).apply {
+                        putExtra("position", position)
+                    }
+                )
             })
         }
     }
