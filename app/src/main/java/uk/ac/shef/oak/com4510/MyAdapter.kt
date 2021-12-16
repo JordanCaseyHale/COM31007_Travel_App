@@ -14,10 +14,12 @@ import uk.ac.shef.oak.com4510.data.ImageData
 import kotlinx.coroutines.*
 import uk.ac.shef.oak.com4510.view.BrowseActivity
 import uk.ac.shef.oak.com4510.view.BrowsePreviewsFragment
+import uk.ac.shef.oak.com4510.view.MainActivity
+
 
 class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private lateinit var context: Context
-    private lateinit var activity: Activity
+
     constructor(items: List<ImageData>) : super() {
         MyAdapter.items = items as MutableList<ImageData>
     }
@@ -40,6 +42,22 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        //Use the provided View Holder on the onCreateViewHolder method to populate the
+        // current row on the RecyclerView
+
+        // OLD CODE
+        // if (items[position].image != -1) {
+        //     holder.imageView.setImageResource(items[position].image)
+        // } else if (items[position].file != null) {
+        //         items[position].file?.file?.absolutePath?.let{
+        //             @OptIn(DelicateCoroutinesApi::class)
+        //             GlobalScope.launch(Dispatchers.IO){
+        //                 val myBitmap = MyAdapter.decodeSampledBitmapFromResource(it,150, 150)
+        //                 holder.imageView.setImageBitmap(myBitmap)
+        //             }
+        //         }
+
+        // }
 
         if (items[position].thumbnail == null) {
             items[position].let {
@@ -52,17 +70,16 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
                     }
                 }
             }
-
-            holder.itemView.setOnClickListener(View.OnClickListener {
-                val intent = Intent(context, BrowseActivity::class.java)
-                val mainActivityContext = activity as BrowseActivity
-                mainActivityContext.startForResult.launch(
-                    Intent(context, ShowImageActivity::class.java).apply {
-                        putExtra("position", position)
-                    }
-                )
-            })
         }
+
+        holder.itemView.setOnClickListener(View.OnClickListener {
+            val mainActivityContext = context as BrowseActivity
+            mainActivityContext.startForResult.launch(
+                Intent(context, ShowImageActivity::class.java).apply {
+                    putExtra("position", position)
+                }
+            )
+        })
     }
 
     override fun getItemCount(): Int {
@@ -71,13 +88,16 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     class ViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var imageView: ImageView = itemView.findViewById<View>(R.id.image_item) as ImageView
-    }
 
+    }
 
     companion object {
         lateinit var items: MutableList<ImageData>
         private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
+        /**
+         * helper function to generate a bitmap object of a given size from an image's file path.
+         */
         suspend fun decodeSampledBitmapFromResource(
             filePath: String,
             reqWidth: Int,
@@ -97,6 +117,11 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
             return BitmapFactory.decodeFile(filePath, options);
         }
 
+        /**
+         * helper function to calculate an inSampleSize for resampling to achieve the right picture
+         * density for a smaller size file.
+         * See inSampleFile: https://developer.android.com/reference/android/graphics/BitmapFactory.Options#inSampleSize
+         */
         private fun calculateInSampleSize(
             options: BitmapFactory.Options,
             reqWidth: Int,
@@ -122,6 +147,7 @@ class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
             return inSampleSize.toInt();
         }
-
     }
+
+
 }

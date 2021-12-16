@@ -81,6 +81,9 @@
             android:label="Browse Previews">
         </activity>
 
+        <activity
+            android:name=".ShowImageActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

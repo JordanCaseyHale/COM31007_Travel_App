@@ -52,6 +52,13 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var activity: Activity
     private lateinit var easyImage: EasyImage
 
+    companion object {
+        val ADAPTER_ITEM_DELETED = 100
+        private const val REQUEST_READ_EXTERNAL_STORAGE = 2987
+        private const val REQUEST_WRITE_EXTERNAL_STORAGE = 7829
+        private const val REQUEST_CAMERA_CODE = 100
+
+    }
     val startForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -95,6 +102,7 @@ class BrowseActivity : AppCompatActivity() {
         mRecyclerView.layoutManager = GridLayoutManager(this, numberOfColumns)
         mAdapter = MyAdapter(myDataset) as RecyclerView.Adapter<RecyclerView.ViewHolder>
         mRecyclerView.adapter = mAdapter
+
         // required by Android 6.0 +
         checkPermissions(applicationContext)
         initEasyImage()
@@ -138,7 +146,6 @@ class BrowseActivity : AppCompatActivity() {
             .allowMultiple(true)
             .setCopyImagesToPublicGalleryFolder(true)
             .build()
-
     }
 
     /**
@@ -306,9 +313,4 @@ class BrowseActivity : AppCompatActivity() {
         return imageDataList
     }
 
-    companion object {
-        private val REQUEST_READ_EXTERNAL_STORAGE = 2987
-        private val REQUEST_WRITE_EXTERNAL_STORAGE = 7829
-        private val REQUEST_CAMERA_CODE = 100
-    }
 }
