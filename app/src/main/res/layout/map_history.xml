@@ -7,14 +7,13 @@
     tools:context=".view.MapHistoryActivity">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fab_gallery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:srcCompat="@android:drawable/ic_menu_camera"
-        tools:ignore="MissingConstraints" />
+        android:layout_gravity="bottom|start"
+        android:layout_margin="@dimen/fab_margin"
+        app:fabSize="normal"
+        android:src="@drawable/ic_gallery_black_24dp" />
 
 
     <LinearLayout xmlns:map="http://schemas.android.com/apk/res-auto"

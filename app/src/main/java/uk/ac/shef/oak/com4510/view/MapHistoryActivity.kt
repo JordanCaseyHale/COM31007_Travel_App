@@ -21,6 +21,9 @@ import uk.ac.shef.oak.com4510.data.ImageDataDao
 import uk.ac.shef.oak.com4510.databinding.MapHistoryBinding
 import java.util.ArrayList
 import android.media.ExifInterface
+import android.view.View
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import pl.aprilapps.easyphotopicker.EasyImage
 import uk.ac.shef.oak.com4510.data.Location
 
 
@@ -30,6 +33,7 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
     private var myDataset: MutableList<ImageData> = ArrayList<ImageData>()
     private lateinit var daoObj: ImageDataDao
     private var locationData: MutableList<Location> = ArrayList<Location>()
+    private lateinit var easyImage: EasyImage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +46,14 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
         initData()
 
         initLocationData()
+
+        //initEasyImage()
+
+        // the floating button that will allow us to get the images from the Gallery
+        //val fabGallery: FloatingActionButton = findViewById(R.id.fab_gallery)
+        //fabGallery.setOnClickListener(View.OnClickListener {
+            //easyImage.openChooser(this@MapHistoryActivity)
+        //})
 
         binding.MapHistoryBack.setOnClickListener {
             setContentView(R.layout.activity_main)

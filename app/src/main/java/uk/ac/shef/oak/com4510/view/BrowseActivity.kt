@@ -29,6 +29,10 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 import uk.ac.shef.oak.com4510.ImageApplication
 import uk.ac.shef.oak.com4510.MyAdapter
 import uk.ac.shef.oak.com4510.R
@@ -54,6 +58,7 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var activity: Activity
     private lateinit var easyImage: EasyImage
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
 
     companion object {
         val ADAPTER_ITEM_DELETED = 100
@@ -269,7 +274,12 @@ class BrowseActivity : AppCompatActivity() {
         easyImage.handleActivityResult(requestCode, resultCode,data,this,
             object: DefaultCallback() {
                 override fun onMediaFilesPicked(imageFiles: Array<MediaFile>, source: MediaSource) {
-                    onPhotosReturned(imageFiles)
+                    if (source == MediaSource.CAMERA_IMAGE) {
+                        onImageTaken(imageFiles)
+                    }
+                    else {
+                        onPhotosReturned(imageFiles)
+                    }
                 }
 
                 override fun onImagePickerError(error: Throwable, source: MediaSource) {
@@ -289,6 +299,20 @@ class BrowseActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun onPhotosReturned(returnedPhotos: Array<MediaFile>) {
         myDataset.addAll(getImageData(returnedPhotos))
+
+        // we tell the adapter that the data is changed and hence the grid needs
+        // refreshing
+        mAdapter.notifyDataSetChanged()
+        mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
+    }
+
+    /**
+     * add the selected images to the grid
+     * @param returnedPhotos
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    private fun onImageTaken(returnedPhotos: Array<MediaFile>) {
+        myDataset.addAll(getImageTakenData(returnedPhotos))
 
         // we tell the adapter that the data is changed and hence the grid needs
         // refreshing
@@ -317,6 +341,47 @@ class BrowseActivity : AppCompatActivity() {
             var location = Location(
                 latitude = lat?.toDouble(),
                 longitude = long?.toDouble()
+            )
+            // Update the database with the new location
+            var location_id = insertData(location)
+
+            var imageData = ImageData(
+                imageUri = mediaFile.file.absolutePath,
+                location = location_id,
+                imageDescription = mediaFile.file.name
+            )
+            // Update the database with the newly created object
+            var id = insertData(imageData)
+            imageData.imageId = id
+            imageDataList.add(imageData)
+        }
+        return imageDataList
+    }
+
+    private var currentLocation: android.location.Location? = null
+    private fun getImageTakenData(returnedPhotos: Array<MediaFile>): List<ImageData> {
+        val imageDataList: MutableList<ImageData> = ArrayList<ImageData>()
+        for (mediaFile in returnedPhotos) {
+            //Get current location
+            var cts = CancellationTokenSource()
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            )
+            mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
+                Log.i("LocationOfImage", it.latitude.toString())
+                currentLocation!!.latitude = it.latitude
+                currentLocation!!.longitude = it.longitude
+            }
+            Log.i("AttemptLocation", currentLocation!!.latitude.toString())
+            var location = Location(
+                latitude = currentLocation!!.latitude.toDouble(),
+                longitude = currentLocation!!.longitude.toDouble()
             )
             // Update the database with the new location
             var location_id = insertData(location)
