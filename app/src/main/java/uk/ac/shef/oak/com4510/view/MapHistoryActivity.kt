@@ -20,12 +20,16 @@ import uk.ac.shef.oak.com4510.data.ImageData
 import uk.ac.shef.oak.com4510.data.ImageDataDao
 import uk.ac.shef.oak.com4510.databinding.MapHistoryBinding
 import java.util.ArrayList
+import android.media.ExifInterface
+import uk.ac.shef.oak.com4510.data.Location
+
 
 class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var binding: MapHistoryBinding
     private var myDataset: MutableList<ImageData> = ArrayList<ImageData>()
     private lateinit var daoObj: ImageDataDao
+    private var locationData: Location = Location()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,9 +79,16 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
         for (image in myDataset) {
             Log.i("LocationData", image.imageDescription.toString())
             Log.i("LocationData", image.imageUri)
+            //val exifInterface = ExifInterface(image.imageUri)
+            //val latLong = FloatArray(2)
+            //if (exifInterface.getLatLong(latLong)) {
+                // Do stuff with lat / long...
+                //Log.i("LocationData", latLong[0].toString())
+            //}
             image.location?.apply {
-                var location = daoObj.getLocation(image.location!!)
-                Log.i("LocationData", location.latitude.toString())
+                getLocationData(image.location!!)
+                mMap.addMarker(MarkerOptions().position(LatLng(locationData.latitude!!, locationData.longitude!!)).title(image.imageDescription))
+                Log.i("LocationData", locationData.latitude.toString())
             }
         }
     }
@@ -86,17 +97,17 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
      * Init data by loading from the database
      */
     private fun initData() {
-//        repeat(5){
-//            myDataset.add(ImageElement(R.drawable.joe1))
-//            myDataset.add(ImageElement(R.drawable.joe2))
-//            myDataset.add(ImageElement(R.drawable.joe3))
-//        }
-        // Your code here
-
         GlobalScope.launch {
             daoObj = (this@MapHistoryActivity.application as ImageApplication).databaseObj.imageDataDao()
             var data = daoObj.getItems()
             myDataset.addAll(data)
+        }
+    }
+
+    private fun getLocationData(location_id: Int) {
+        GlobalScope.launch {
+            daoObj = (this@MapHistoryActivity.application as ImageApplication).databaseObj.imageDataDao()
+            locationData = daoObj.getLocation(location_id)
         }
     }
 }

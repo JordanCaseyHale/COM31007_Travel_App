@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.ExifInterface
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -38,6 +39,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import pl.aprilapps.easyphotopicker.*
+import uk.ac.shef.oak.com4510.data.Location
 import java.util.ArrayList
 
 class BrowseActivity : AppCompatActivity() {
@@ -158,6 +160,12 @@ class BrowseActivity : AppCompatActivity() {
     private fun insertData(imageData: ImageData): Int = runBlocking {
         //TODO: remove code
         var insertJob = async { daoObj.insert(imageData) }
+        insertJob.await().toInt()
+    }
+
+    private fun insertData(location: Location): Int = runBlocking {
+        //TODO: remove code
+        var insertJob = async { daoObj.insert(location) }
         insertJob.await().toInt()
     }
 
@@ -291,9 +299,25 @@ class BrowseActivity : AppCompatActivity() {
     private fun getImageData(returnedPhotos: Array<MediaFile>): List<ImageData> {
         val imageDataList: MutableList<ImageData> = ArrayList<ImageData>()
         for (mediaFile in returnedPhotos) {
+            val exifInterface = ExifInterface(mediaFile.file.absolutePath)
+            val latLong = FloatArray(2)
+            var lat: Float? = null
+            var long: Float? = null
+            if (exifInterface.getLatLong(latLong)) {
+                // Do stuff with lat / long...
+                lat = latLong[0]
+                long = latLong[1]
+            }
+            var location = Location(
+                latitude = lat?.toDouble(),
+                longitude = long?.toDouble()
+            )
+            // Update the database with the new location
+            var location_id = insertData(location)
+
             var imageData = ImageData(
                 imageUri = mediaFile.file.absolutePath,
-                //location = ,
+                location = location_id,
                 imageDescription = mediaFile.file.name
             )
             // Update the database with the newly created object

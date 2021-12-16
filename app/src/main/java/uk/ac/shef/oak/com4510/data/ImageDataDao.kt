@@ -27,6 +27,9 @@ interface ImageDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(singleImageData: ImageData): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(singleLocation: Location): Long
+
     @Update
     suspend fun update(imageData: ImageData)
 
