@@ -29,7 +29,7 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: MapHistoryBinding
     private var myDataset: MutableList<ImageData> = ArrayList<ImageData>()
     private lateinit var daoObj: ImageDataDao
-    private var locationData: Location = Location()
+    private var locationData: MutableList<Location> = ArrayList<Location>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +40,8 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
         daoObj = (this@MapHistoryActivity.application as ImageApplication).databaseObj.imageDataDao()
 
         initData()
+
+        initLocationData()
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -86,9 +88,27 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
                 //Log.i("LocationData", latLong[0].toString())
             //}
             image.location?.apply {
-                getLocationData(image.location!!)
-                mMap.addMarker(MarkerOptions().position(LatLng(locationData.latitude!!, locationData.longitude!!)).title(image.imageDescription))
-                Log.i("LocationData", locationData.latitude.toString())
+                var lat: Double? = null
+                var long: Double? = null
+                Log.i("LocationID", image.location.toString())
+                for (location in locationData) {
+                    Log.i("LocationDataTestID", location.locationId.toString())
+                    if (location.locationId == image.location) {
+                        Log.i("LocationDataAcceptID", location.locationId.toString())
+                        lat = location.latitude
+                        long = location.longitude
+                        Log.i("LocationDataAcceptlat", location.latitude.toString())
+                        Log.i("LocationDataAcceptlong", location.longitude.toString())
+                    }
+                }
+                Log.i("LocationData2", lat.toString())
+                Log.i("LocationData2", long.toString())
+                Log.i("LocationData2", image.imageDescription.toString())
+                lat?.apply{
+                    long?.apply{
+                        mMap.addMarker(MarkerOptions().position(LatLng(lat, long)).title(image.imageDescription))
+                    }
+                }
             }
         }
     }
@@ -104,10 +124,11 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun getLocationData(location_id: Int) {
+    private fun initLocationData() {
         GlobalScope.launch {
             daoObj = (this@MapHistoryActivity.application as ImageApplication).databaseObj.imageDataDao()
-            locationData = daoObj.getLocation(location_id)
+            var data = daoObj.getLocations()
+            locationData.addAll(data)
         }
     }
 }

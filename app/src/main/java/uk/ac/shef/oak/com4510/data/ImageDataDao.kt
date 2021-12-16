@@ -18,8 +18,8 @@ interface ImageDataDao {
     @Query("SELECT * from image WHERE imageId = :id")
     fun getItem(id: Int): ImageData
 
-    @Query("SELECT * from location WHERE locationId = :id")
-    fun getLocation(id: Int): Location
+    @Query("SELECT * from location ORDER BY locationId ASC")
+    fun getLocations(): List<Location>
 
     // Specify the conflict strategy as REPLACE,
     // when the trying to add an existing Item
