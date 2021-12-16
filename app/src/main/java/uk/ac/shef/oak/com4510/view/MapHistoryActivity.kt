@@ -43,11 +43,6 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
 
         initLocationData()
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-
         binding.MapHistoryBack.setOnClickListener {
             setContentView(R.layout.activity_main)
             val intent = Intent (this, MainActivity::class.java)
