@@ -24,6 +24,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import uk.ac.shef.oak.com4510.ImageApplication
@@ -137,6 +138,7 @@ class BrowseActivity : AppCompatActivity() {
             .allowMultiple(true)
             .setCopyImagesToPublicGalleryFolder(true)
             .build()
+
     }
 
     /**
