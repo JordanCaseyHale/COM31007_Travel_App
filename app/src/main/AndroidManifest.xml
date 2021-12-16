@@ -34,6 +34,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.COM31007_Travel_App">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAP_API_KEY}"
+            />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
