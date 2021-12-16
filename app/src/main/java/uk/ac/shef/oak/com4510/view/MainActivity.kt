@@ -35,11 +35,6 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-
         journeyButton = findViewById<Button>(R.id.homePage_JourneyButton)
         journeyButton!!.setOnClickListener {
             navController.navigate(R.id.action_HomePage_to_JourneyStart)

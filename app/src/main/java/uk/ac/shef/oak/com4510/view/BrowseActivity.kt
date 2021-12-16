@@ -21,6 +21,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -83,15 +84,6 @@ class BrowseActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //val navController = findNavController(R.id.nav_host_fragment)
-        //appBarConfiguration = AppBarConfiguration(navController.graph)
-        //setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-
         daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
 
         setContentView(R.layout.activity_gallery)
@@ -114,6 +106,11 @@ class BrowseActivity : AppCompatActivity() {
         fabGallery.setOnClickListener(View.OnClickListener {
             easyImage.openChooser(this@BrowseActivity)
         })
+
+        val back: Button = findViewById(R.id.back)
+        back.setOnClickListener {
+            this@BrowseActivity.finish()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
