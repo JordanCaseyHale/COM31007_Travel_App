@@ -12,11 +12,14 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.core.app.ActivityCompat
+import androidx.room.Room
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import uk.ac.shef.oak.com4510.data.ImageRoomDatabase
+import uk.ac.shef.oak.com4510.data.Journey
 import uk.ac.shef.oak.com4510.databinding.ActivityMapsBinding
 import uk.ac.shef.oak.com4510.view.MainActivity
 import java.text.DateFormat
@@ -34,6 +37,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // creating the database
+        val journeyDB = Room.databaseBuilder(
+            applicationContext,
+            ImageRoomDatabase ::class.java,"journey"
+        )
 
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
