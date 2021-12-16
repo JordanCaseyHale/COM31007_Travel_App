@@ -46,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/MapHistory"
-        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.MapHistoryFragment"
         android:label="Map History"
         tools:layout="@layout/map_history">
     </fragment>
@@ -64,7 +64,7 @@
     </fragment>
     <fragment
         android:id="@+id/Map"
-        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.BasicMapFragment"
         android:label="Map"
         tools:layout="@layout/map">
     </fragment>

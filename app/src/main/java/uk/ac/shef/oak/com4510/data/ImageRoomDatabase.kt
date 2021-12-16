@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 /**
  * Database class with a singleton INSTANCE object.
  */
-@Database(entities = [ImageData::class], version = 1, exportSchema = false)
+@Database(entities = [ImageData::class, Location::class, Journey::class], version = 1, exportSchema = false)
 abstract class ImageRoomDatabase: RoomDatabase() {
 
     abstract fun imageDataDao(): ImageDataDao
@@ -23,7 +23,7 @@ abstract class ImageRoomDatabase: RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ImageRoomDatabase::class.java,
-                    "lab5_database"
+                    "TravelApp_database"
                 )
                     // Wipes and rebuilds instead of migrating if no Migration object specified.
                     .fallbackToDestructiveMigration()

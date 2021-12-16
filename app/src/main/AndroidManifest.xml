@@ -13,6 +13,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:name=".ImageApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.COM31007_Travel_App">
@@ -44,11 +45,24 @@
             android:name=".MapsActivity"
             android:exported="true"
             android:label="maps">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        </activity>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        <activity
+            android:name=".view.BasicMapActivity"
+            android:exported="true"
+            android:label="Basic map">
+        </activity>
+
+        <activity
+            android:name=".view.MapHistoryActivity"
+            android:exported="true"
+            android:label="Map History">
+        </activity>
+
+        <activity
+            android:name=".view.BrowseActivity"
+            android:exported="true"
+            android:label="Browse Previews">
         </activity>
     </application>
 

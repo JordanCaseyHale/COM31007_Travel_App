@@ -55,9 +55,9 @@ class BrowseActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val navController = findNavController(R.id.nav_host_fragment)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        //val navController = findNavController(R.id.nav_host_fragment)
+        //appBarConfiguration = AppBarConfiguration(navController.graph)
+        //setupActionBarWithNavController(navController, appBarConfiguration)
 
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -65,7 +65,7 @@ class BrowseActivity : AppCompatActivity() {
         }
 
         daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
-        daoObj.nukeTable()
+
         setContentView(R.layout.activity_gallery)
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
 
@@ -311,14 +311,14 @@ class BrowseActivity : AppCompatActivity() {
 //        return imageElementList
         val imageDataList: MutableList<ImageData> = ArrayList<ImageData>()
         for (mediaFile in returnedPhotos) {
-            val fileNameAsTempTitle = mediaFile.file.name
             var imageData = ImageData(
-                imageTitle = fileNameAsTempTitle,
-                imageUri = mediaFile.file.absolutePath
+                imageUri = mediaFile.file.absolutePath,
+                //location = ,
+                imageDescription = mediaFile.file.name
             )
             // Update the database with the newly created object
             var id = insertData(imageData)
-            imageData.id = id
+            imageData.imageId = id
             imageDataList.add(imageData)
         }
         return imageDataList
