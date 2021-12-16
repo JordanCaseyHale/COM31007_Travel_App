@@ -61,17 +61,11 @@ dependencies {
     // AndroidX testing lib
     androidTestImplementation "androidx.test.espresso:espresso-core:$expresso_test_version"
 
-    // Lifecycle libs
-    // implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    // implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
-
     // Android material UI design component lib
     implementation "com.google.android.material:material:$material_version"
 
     // Kotlin core lib
     implementation "androidx.core:core-ktx:$core_ktx_version"
-    // Kotlin standard lib for JVM
-    // implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     // Navigation libs
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
@@ -95,4 +89,9 @@ dependencies {
     // Maps and location libs
     implementation "com.google.android.gms:play-services-maps:$maps_version"
     implementation "com.google.android.gms:play-services-location:$location_version"
+
+    // Activity Result API
+    implementation 'androidx.activity:activity-ktx:1.4.0-rc01'
+    // Fragment API for Activity Result API
+    implementation 'androidx.fragment:fragment-ktx:1.4.0-alpha10'
 }

@@ -2,4 +2,9 @@
     <string name="app_name">COM31007_Travel_App</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="Journey_Title">New Visit</string>
+    <string name="image_title_label">Title</string>
+    <string name="imageDescription">Description</string>
+    <string name="btnCancel">Cancel</string>
+    <string name="btnSave">Save</string>
+    <string name="btnDelete">Delete</string>
 </resources>

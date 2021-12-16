@@ -40,13 +40,13 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-        journeyButton = findViewById(R.id.homePage_JourneyButton) as Button
+        journeyButton = findViewById<Button>(R.id.homePage_JourneyButton)
         journeyButton!!.setOnClickListener {
             navController.navigate(R.id.action_HomePage_to_JourneyStart)
             Log.i("Journey", "Ahhhh")
         }
 
-        mapButton = findViewById(R.id.homePage_MapButton) as Button
+        mapButton = findViewById<Button>(R.id.homePage_MapButton)
         mapButton!!.setOnClickListener {
             navController.navigate(R.id.action_HomePage_to_Map)
             Log.i("Map", "Open normal map")

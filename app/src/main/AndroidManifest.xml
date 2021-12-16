@@ -7,6 +7,22 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the "MyLocation" functionality.
     -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
@@ -64,6 +80,14 @@
             android:exported="true"
             android:label="Browse Previews">
         </activity>
+
+        <activity
+            android:name=".ShowImageActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".EditActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
