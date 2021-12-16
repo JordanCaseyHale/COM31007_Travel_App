@@ -32,7 +32,6 @@ class EditActivity : AppCompatActivity() {
             if (position != -1) {
                 val imageView = findViewById<ImageView>(R.id.edit_image)
                 val titleEditToolbar = findViewById<Toolbar>(R.id.editor_toolbar)
-                val titleTextInput = findViewById<TextInputEditText>(R.id.edit_image_title)
                 val descriptionTextInput =
                     findViewById<TextInputEditText>(R.id.edit_image_description)
 
@@ -76,7 +75,6 @@ class EditActivity : AppCompatActivity() {
             val descriptionTextInput =
                 findViewById<TextInputEditText>(R.id.edit_image_description)
             MyAdapter.items[position].imageDescription = descriptionTextInput.text.toString()
-            val titleTextInput = findViewById<TextInputEditText>(R.id.edit_image_title)
 
             scope.launch(Dispatchers.IO) {
                 async { daoObj.update(MyAdapter.items[position]) }
