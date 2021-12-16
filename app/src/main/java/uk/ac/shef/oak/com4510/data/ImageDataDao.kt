@@ -12,11 +12,13 @@ import androidx.room.Update
  */
 @Dao
 interface ImageDataDao {
-    @Query("SELECT * from image ORDER by id ASC")
+    @Query("SELECT * from image ORDER by imageId ASC")
     suspend fun getItems(): List<ImageData>
 
-    @Query("SELECT * from image WHERE id = :id")
+    @Query("SELECT * from image WHERE imageId = :id")
     fun getItem(id: Int): ImageData
+
+    //@Query("SELECT * from lcoation")
 
     // Specify the conflict strategy as REPLACE,
     // when the trying to add an existing Item
@@ -30,7 +32,5 @@ interface ImageDataDao {
     @Delete
     suspend fun delete(imageData: ImageData)
 
-    @Query("DELETE FROM image")
-    fun nukeTable()
 
 }

@@ -6,11 +6,15 @@ import androidx.room.*
 /**
  * Entity data class represents a single row in the database.
  */
-@Entity(tableName = "image", indices = [Index(value = ["id","title"])])
+@Entity(tableName = "image", indices = [Index(value = ["imageId"])],
+    foreignKeys = [(ForeignKey(entity = Location::class,
+        parentColumns = arrayOf("locationId"),
+        childColumns = arrayOf("location_id"),
+        onDelete = ForeignKey.CASCADE))])
 data class ImageData(
-    @PrimaryKey(autoGenerate = true)var id: Int = 0,
+    @PrimaryKey(autoGenerate = true)var imageId: Int = 0,
     @ColumnInfo(name="uri") val imageUri: String,
-    @ColumnInfo(name="title") var imageTitle: String,
+    @ColumnInfo(name="location_id") var location: Int? = null,
     @ColumnInfo(name="description") var imageDescription: String? = null,
     @ColumnInfo(name="thumbnailUri") var thumbnailUri: String? = null,)
 {

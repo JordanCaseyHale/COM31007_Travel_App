@@ -6,14 +6,6 @@ plugins {
 }
 
 android {
-    signingConfigs {
-        debug {
-            storeFile file('C:\\Users\\curly\\Documents\\Uni\\Uni - Third Year\\COM31007 - Mobile Software\\keyStore.jks')
-            storePassword 'com4510iscool'
-            keyAlias 'com4510'
-            keyPassword 'com4510iscool'
-        }
-    }
     compileSdk 31
 
     defaultConfig {

@@ -65,7 +65,6 @@ class BrowseActivity : AppCompatActivity() {
         }
 
         daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
-        daoObj.nukeTable()
         setContentView(R.layout.activity_gallery)
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
 
@@ -114,26 +113,6 @@ class BrowseActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-
-//    fun loadFile(){
-//        val dir = File(this.getExternalFilesDir(Environment.DIRECTORY_PICTURES), GALLERY_DIR)
-////        for(file in dir.listFiles()){
-////            Log.e(GALLERY_DIR, file.absolutePath)
-////        }
-//        Toast.makeText(this, dir.absolutePath, Toast.LENGTH_LONG).show()
-//    }
-
-//    fun getAppSpecificAlbumStorageDir(): File? {
-//        // Get the pictures directory that's inside the app-specific directory on
-//        // external storage.
-//        val file = File(context.getExternalFilesDir(
-//            Environment.DIRECTORY_PICTURES), albumName)
-//        if (!file?.mkdirs()) {
-//            Log.e(LOG_TAG, "Directory not created")
-//        }
-//        return file
-//    }
-
     /**
      * it initialises EasyImage
      */
@@ -150,13 +129,6 @@ class BrowseActivity : AppCompatActivity() {
      * Init data by loading from the database
      */
     private fun initData() {
-//        repeat(5){
-//            myDataset.add(ImageElement(R.drawable.joe1))
-//            myDataset.add(ImageElement(R.drawable.joe2))
-//            myDataset.add(ImageElement(R.drawable.joe3))
-//        }
-        // Your code here
-
         GlobalScope.launch {
             daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
             var data = daoObj.getItems()
@@ -313,12 +285,12 @@ class BrowseActivity : AppCompatActivity() {
         for (mediaFile in returnedPhotos) {
             val fileNameAsTempTitle = mediaFile.file.name
             var imageData = ImageData(
-                imageTitle = fileNameAsTempTitle,
+                //imageTitle = fileNameAsTempTitle,
                 imageUri = mediaFile.file.absolutePath
             )
             // Update the database with the newly created object
             var id = insertData(imageData)
-            imageData.id = id
+            imageData.imageId = id
             imageDataList.add(imageData)
         }
         return imageDataList
