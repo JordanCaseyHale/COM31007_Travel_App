@@ -84,6 +84,10 @@
         <activity
             android:name=".ShowImageActivity"
             android:exported="true" />
+
+        <activity
+            android:name=".EditActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
