@@ -12,22 +12,25 @@ import android.media.ExifInterface
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
 import uk.ac.shef.oak.com4510.ImageApplication
 import uk.ac.shef.oak.com4510.MyAdapter
 import uk.ac.shef.oak.com4510.R
@@ -41,7 +44,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import pl.aprilapps.easyphotopicker.*
 import uk.ac.shef.oak.com4510.data.Location
+import uk.ac.shef.oak.com4510.viewmodel.BrowseViewModel
 import java.util.ArrayList
+
 
 class BrowseActivity : AppCompatActivity() {
 
@@ -53,14 +58,18 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var activity: Activity
     private lateinit var easyImage: EasyImage
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private var camera:Boolean = false
+    private var browseViewModel: BrowseViewModel? = null
 
     companion object {
         val ADAPTER_ITEM_DELETED = 100
         private const val REQUEST_READ_EXTERNAL_STORAGE = 2987
         private const val REQUEST_WRITE_EXTERNAL_STORAGE = 7829
         private const val REQUEST_CAMERA_CODE = 100
-
+        private const val ACCESS_FINE_LOCATION = 123
     }
+
     val startForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -83,19 +92,15 @@ class BrowseActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //val navController = findNavController(R.id.nav_host_fragment)
-        //appBarConfiguration = AppBarConfiguration(navController.graph)
-        //setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-
         daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
+        browseViewModel = ViewModelProvider(this)[BrowseViewModel::class.java]
 
         setContentView(R.layout.activity_gallery)
-        initData()
+        //initData()
+        var data = browseViewModel?.getImageData()
+        if (data != null) {
+            myDataset.addAll(data)
+        }
         activity = this
         Log.d("TAG", "message")
         mRecyclerView = findViewById(R.id.grid_recycler_view)
@@ -112,8 +117,19 @@ class BrowseActivity : AppCompatActivity() {
         // the floating button that will allow us to get the images from the Gallery
         val fabGallery: FloatingActionButton = findViewById(R.id.fab_gallery)
         fabGallery.setOnClickListener(View.OnClickListener {
-            easyImage.openChooser(this@BrowseActivity)
+            if (camera) {
+                easyImage.openChooser(this@BrowseActivity)
+            }
+            // if no camera, only open gallery
+            else{
+                easyImage.openGallery(this@BrowseActivity)
+            }
         })
+
+        val back: Button = findViewById(R.id.back)
+        back.setOnClickListener {
+            this@BrowseActivity.finish()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -176,6 +192,10 @@ class BrowseActivity : AppCompatActivity() {
         //TODO: remove code
         var insertJob = async { daoObj.insert(location) }
         insertJob.await().toInt()
+    }
+
+    private fun updateData(imageData: ImageData) = runBlocking {
+        daoObj.update(imageData)
     }
 
     /**
@@ -252,16 +272,21 @@ class BrowseActivity : AppCompatActivity() {
                     )
                 }
             }
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.CAMERA
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.CAMERA),
-                    REQUEST_CAMERA_CODE
-                );
+            // check if device has camera and request permission
+            val pm = context.packageManager
+            if(pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                camera = true
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CAMERA
+                    ) == PackageManager.PERMISSION_DENIED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.CAMERA),
+                        REQUEST_CAMERA_CODE
+                    )
+                }
             }
         }
     }
@@ -272,7 +297,12 @@ class BrowseActivity : AppCompatActivity() {
         easyImage.handleActivityResult(requestCode, resultCode,data,this,
             object: DefaultCallback() {
                 override fun onMediaFilesPicked(imageFiles: Array<MediaFile>, source: MediaSource) {
-                    onPhotosReturned(imageFiles)
+                    if (source == MediaSource.CAMERA_IMAGE) {
+                        onImageTaken(imageFiles)
+                    }
+                    else {
+                        onPhotosReturned(imageFiles)
+                    }
                 }
 
                 override fun onImagePickerError(error: Throwable, source: MediaSource) {
@@ -292,6 +322,20 @@ class BrowseActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun onPhotosReturned(returnedPhotos: Array<MediaFile>) {
         myDataset.addAll(getImageData(returnedPhotos))
+
+        // we tell the adapter that the data is changed and hence the grid needs
+        // refreshing
+        mAdapter.notifyDataSetChanged()
+        mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
+    }
+
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun onImageTaken(returnedPhotos: Array<MediaFile>) {
+        val imageDataList: List<ImageData> = getImageData(returnedPhotos)
+        myDataset.addAll(imageDataList)
+        //call function to update location of image taken
+        updateLocation(imageDataList)
 
         // we tell the adapter that the data is changed and hence the grid needs
         // refreshing
@@ -322,7 +366,9 @@ class BrowseActivity : AppCompatActivity() {
                 longitude = long?.toDouble()
             )
             // Update the database with the new location
-            var location_id = insertData(location)
+            var location_id = browseViewModel?.getNextLocationId()
+            browseViewModel?.insertLocationData(location)
+            //var location_id = insertData(location)
 
             var imageData = ImageData(
                 imageUri = mediaFile.file.absolutePath,
@@ -330,11 +376,58 @@ class BrowseActivity : AppCompatActivity() {
                 imageDescription = mediaFile.file.name
             )
             // Update the database with the newly created object
-            var id = insertData(imageData)
-            imageData.imageId = id
-            imageDataList.add(imageData)
+            var id = browseViewModel?.getNextImageId()
+            browseViewModel?.insertImageData(imageData)
+            //var id = insertData(imageData)
+            if (id != null) {
+                imageData.imageId = id
+                imageDataList.add(imageData)
+            }
         }
         return imageDataList
     }
 
+    private fun updateLocation(imageDataList: List<ImageData>) {
+        val cts = CancellationTokenSource()
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        //Check Location Permission
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            //Request Location Permission
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                ACCESS_FINE_LOCATION
+            )
+            // If Location Permission Denied then return and don't use location
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED) {
+                    return
+                }
+        }
+        for (image: ImageData in imageDataList) {
+            mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
+                var location = Location(
+                    latitude = it.latitude.toDouble(),
+                    longitude = it.longitude.toDouble()
+                )
+                // Update the database with the new location
+                var location_id = browseViewModel?.getNextLocationId()
+                browseViewModel?.insertLocationData(location)
+                //var location_id = insertData(location)
+
+                // Update the database with the newly created object
+                image.location = location_id
+                browseViewModel?.updateImageData(image)
+                //updateData(image)
+            }
+        }
+    }
 }

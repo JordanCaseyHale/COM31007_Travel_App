@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
@@ -44,6 +45,11 @@ class ShowImageActivity : AppCompatActivity() {
             // this is the image position in the itemList
             position = bundle.getInt("position")
             displayData(position)
+        }
+
+        val back: Button = findViewById(R.id.back)
+        back.setOnClickListener {
+            this@ShowImageActivity.finish()
         }
     }
 
