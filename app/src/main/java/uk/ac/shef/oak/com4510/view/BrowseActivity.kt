@@ -48,6 +48,7 @@ import pl.aprilapps.easyphotopicker.*
 import uk.ac.shef.oak.com4510.data.Location
 import java.util.ArrayList
 
+
 class BrowseActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
@@ -59,12 +60,14 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var activity: Activity
     private lateinit var easyImage: EasyImage
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
+    private var camera:Boolean = false
 
     companion object {
         val ADAPTER_ITEM_DELETED = 100
         private const val REQUEST_READ_EXTERNAL_STORAGE = 2987
         private const val REQUEST_WRITE_EXTERNAL_STORAGE = 7829
         private const val REQUEST_CAMERA_CODE = 100
+
 
     }
     val startForResult =
@@ -109,7 +112,13 @@ class BrowseActivity : AppCompatActivity() {
         // the floating button that will allow us to get the images from the Gallery
         val fabGallery: FloatingActionButton = findViewById(R.id.fab_gallery)
         fabGallery.setOnClickListener(View.OnClickListener {
-            easyImage.openChooser(this@BrowseActivity)
+            if (camera) {
+                easyImage.openChooser(this@BrowseActivity)
+            }
+            // if no camera, only open gallery
+            else{
+                easyImage.openGallery(this@BrowseActivity)
+            }
         })
 
         val back: Button = findViewById(R.id.back)
@@ -254,16 +263,21 @@ class BrowseActivity : AppCompatActivity() {
                     )
                 }
             }
-            if (ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.CAMERA
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.CAMERA),
-                    REQUEST_CAMERA_CODE
-                );
+            // check if device has camera and request permission
+            val pm = context.packageManager
+            if(pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+                camera = true
+                if (ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CAMERA
+                    ) == PackageManager.PERMISSION_DENIED
+                ) {
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.CAMERA),
+                        REQUEST_CAMERA_CODE
+                    )
+                }
             }
         }
     }
