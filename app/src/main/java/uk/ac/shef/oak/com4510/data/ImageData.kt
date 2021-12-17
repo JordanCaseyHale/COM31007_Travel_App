@@ -1,3 +1,6 @@
+/**
+ * Class containing the Image table.
+ */
 package uk.ac.shef.oak.com4510.data
 
 import android.graphics.Bitmap
@@ -5,6 +8,7 @@ import androidx.room.*
 
 /**
  * Entity data class represents a single row in the database.
+ *
  */
 @Entity(tableName = "image", indices = [Index(value = ["imageId"])],
     foreignKeys = [(ForeignKey(entity = Location::class,

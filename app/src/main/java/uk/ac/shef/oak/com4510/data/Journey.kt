@@ -1,3 +1,6 @@
+/**
+ * Class corresponding to the Journey Table and represents the Journey object.
+ */
 package uk.ac.shef.oak.com4510.data
 
 import androidx.room.*
