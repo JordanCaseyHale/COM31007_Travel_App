@@ -1,3 +1,4 @@
+
 package uk.ac.shef.oak.com4510.model
 
 import android.app.Application
@@ -7,7 +8,9 @@ import uk.ac.shef.oak.com4510.data.ImageData
 import uk.ac.shef.oak.com4510.data.ImageDataDao
 import uk.ac.shef.oak.com4510.data.ImageRoomDatabase
 import uk.ac.shef.oak.com4510.data.Location
-
+/**
+ * Browse Repository class
+ */
 class BrowseRepository(application: Application) {
     private var daoObj: ImageDataDao? = null
 
@@ -27,22 +30,42 @@ class BrowseRepository(application: Application) {
         return daoObj?.getItems()
     }
 
+    /**
+     * @return the most recent image ID
+     * as an integer.
+     */
     fun getMaxImageId(): Int? {
         return daoObj?.getMaxImageId()
     }
 
+    /**
+     * @return the most recent location ID
+     * as an integer.
+     */
     fun getMaxLocationId(): Int? {
         return daoObj?.getMaxLocationId()
     }
 
+    /**
+     * Inserts an image into the database.
+     * @param imageData - The image to be inserted.
+     */
     fun insertImageData(imageData: ImageData) {
         daoObj?.insert(imageData)
     }
 
+    /**
+     * Inserts a location into the database.
+     * @param location - the location to be inserted.
+     */
     fun insertLocationData(location: Location) {
         daoObj?.insert(location)
     }
 
+    /**
+     * Updates an image in the database.
+     * @param imageData - the image to be updated.
+     */
     fun updateImageData(imageData: ImageData) {
         daoObj?.update(imageData)
     }
