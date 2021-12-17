@@ -91,15 +91,15 @@ class BrowseActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
         browseViewModel = ViewModelProvider(this)[BrowseViewModel::class.java]
 
         setContentView(R.layout.activity_gallery)
-        //initData()
+
         var data = browseViewModel?.getImageData()
         if (data != null) {
             myDataset.addAll(data)
         }
+
         activity = this
         Log.d("TAG", "message")
         mRecyclerView = findViewById(R.id.grid_recycler_view)
@@ -163,38 +163,6 @@ class BrowseActivity : AppCompatActivity() {
             .allowMultiple(true)
             .setCopyImagesToPublicGalleryFolder(true)
             .build()
-    }
-
-    /**
-     * Init data by loading from the database
-     */
-    private fun initData() {
-        GlobalScope.launch {
-            daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
-            var data = daoObj.getItems()
-            myDataset.addAll(data)
-        }
-    }
-
-    /**
-     * insert a ImageData into the database
-     * Called for each image the user adds by clicking the fab button
-     * Then retrieves the same image so we can have the automatically assigned id field
-     */
-    private fun insertData(imageData: ImageData): Int = runBlocking {
-        //TODO: remove code
-        var insertJob = async { daoObj.insert(imageData) }
-        insertJob.await().toInt()
-    }
-
-    private fun insertData(location: Location): Int = runBlocking {
-        //TODO: remove code
-        var insertJob = async { daoObj.insert(location) }
-        insertJob.await().toInt()
-    }
-
-    private fun updateData(imageData: ImageData) = runBlocking {
-        daoObj.update(imageData)
     }
 
     /**
@@ -317,13 +285,7 @@ class BrowseActivity : AppCompatActivity() {
      */
     @SuppressLint("NotifyDataSetChanged")
     private fun onPhotosReturned(returnedPhotos: Array<MediaFile>) {
-        //myDataset.addAll(getImageData(returnedPhotos))
         getImageData(returnedPhotos)
-
-        // we tell the adapter that the data is changed and hence the grid needs
-        // refreshing
-        //mAdapter.notifyDataSetChanged()
-        //mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
     }
 
     /**
@@ -373,11 +335,6 @@ class BrowseActivity : AppCompatActivity() {
                     //call function to update location of image taken
                     updateLocation(imageData)
                 }
-
-                // we tell the adapter that the data is changed and hence the grid needs
-                // refreshing
-                //mAdapter.notifyDataSetChanged()
-                //mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
             }
         }
     }
@@ -407,7 +364,6 @@ class BrowseActivity : AppCompatActivity() {
                     return
                 }
         }
-        //for (image: ImageData in imageDataList) {
         mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
             var location = Location(
                 latitude = it.latitude.toDouble(),
@@ -422,6 +378,5 @@ class BrowseActivity : AppCompatActivity() {
             }
             browseViewModel?.insertLocationData(location)
         }
-        //}
     }
 }
