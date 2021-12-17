@@ -25,6 +25,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -38,10 +39,7 @@ import uk.ac.shef.oak.com4510.data.ImageData
 import uk.ac.shef.oak.com4510.data.ImageDataDao
 import uk.ac.shef.oak.com4510.databinding.ActivityMainBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import pl.aprilapps.easyphotopicker.*
 import uk.ac.shef.oak.com4510.data.Location
 import uk.ac.shef.oak.com4510.viewmodel.BrowseViewModel
@@ -61,6 +59,7 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var camera:Boolean = false
     private var browseViewModel: BrowseViewModel? = null
+    private val imageDataList: MutableList<ImageData> = ArrayList<ImageData>()
 
     companion object {
         val ADAPTER_ITEM_DELETED = 100
@@ -297,12 +296,9 @@ class BrowseActivity : AppCompatActivity() {
         easyImage.handleActivityResult(requestCode, resultCode,data,this,
             object: DefaultCallback() {
                 override fun onMediaFilesPicked(imageFiles: Array<MediaFile>, source: MediaSource) {
-                    if (source == MediaSource.CAMERA_IMAGE) {
-                        onImageTaken(imageFiles)
-                    }
-                    else {
-                        onPhotosReturned(imageFiles)
-                    }
+                    onPhotosReturned(imageFiles)
+
+                    mAdapter.notifyDataSetChanged()
                 }
 
                 override fun onImagePickerError(error: Throwable, source: MediaSource) {
@@ -321,26 +317,13 @@ class BrowseActivity : AppCompatActivity() {
      */
     @SuppressLint("NotifyDataSetChanged")
     private fun onPhotosReturned(returnedPhotos: Array<MediaFile>) {
-        myDataset.addAll(getImageData(returnedPhotos))
+        //myDataset.addAll(getImageData(returnedPhotos))
+        getImageData(returnedPhotos)
 
         // we tell the adapter that the data is changed and hence the grid needs
         // refreshing
-        mAdapter.notifyDataSetChanged()
-        mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
-    }
-
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun onImageTaken(returnedPhotos: Array<MediaFile>) {
-        val imageDataList: List<ImageData> = getImageData(returnedPhotos)
-        myDataset.addAll(imageDataList)
-        //call function to update location of image taken
-        updateLocation(imageDataList)
-
-        // we tell the adapter that the data is changed and hence the grid needs
-        // refreshing
-        mAdapter.notifyDataSetChanged()
-        mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
+        //mAdapter.notifyDataSetChanged()
+        //mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
     }
 
     /**
@@ -349,8 +332,7 @@ class BrowseActivity : AppCompatActivity() {
      * @param returnedPhotos
      * @return
      */
-    private fun getImageData(returnedPhotos: Array<MediaFile>): List<ImageData> {
-        val imageDataList: MutableList<ImageData> = ArrayList<ImageData>()
+    private fun getImageData(returnedPhotos: Array<MediaFile>) {
         for (mediaFile in returnedPhotos) {
             val exifInterface = ExifInterface(mediaFile.file.absolutePath)
             val latLong = FloatArray(2)
@@ -365,29 +347,42 @@ class BrowseActivity : AppCompatActivity() {
                 latitude = lat?.toDouble(),
                 longitude = long?.toDouble()
             )
-            // Update the database with the new location
-            var location_id = browseViewModel?.getNextLocationId()
-            browseViewModel?.insertLocationData(location)
-            //var location_id = insertData(location)
 
-            var imageData = ImageData(
-                imageUri = mediaFile.file.absolutePath,
-                location = location_id,
-                imageDescription = mediaFile.file.name
-            )
-            // Update the database with the newly created object
-            var id = browseViewModel?.getNextImageId()
-            browseViewModel?.insertImageData(imageData)
-            //var id = insertData(imageData)
-            if (id != null) {
-                imageData.imageId = id
-                imageDataList.add(imageData)
+            browseViewModel?.viewModelScope?.launch(Dispatchers.IO) {
+                var imageData = ImageData(imageUri = mediaFile.file.absolutePath, imageDescription = mediaFile.file.name)
+                // Update the database with the new location
+                if (location != null ) {
+                    var location_id = browseViewModel?.getNextLocationId()
+                    browseViewModel?.insertLocationData(location)
+
+                    imageData.location = location_id
+
+                }
+
+                // Update the database with the newly created object
+                var id = browseViewModel?.getNextImageId()
+                browseViewModel?.insertImageData(imageData)
+                //var id = insertData(imageData)
+                if (id != null) {
+                    imageData.imageId = id
+                    //imageDataList.add(imageData)
+                }
+                myDataset.add(imageData)
+
+                if (location == null) {
+                    //call function to update location of image taken
+                    updateLocation(imageData)
+                }
+
+                // we tell the adapter that the data is changed and hence the grid needs
+                // refreshing
+                //mAdapter.notifyDataSetChanged()
+                //mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
             }
         }
-        return imageDataList
     }
 
-    private fun updateLocation(imageDataList: List<ImageData>) {
+    private fun updateLocation(imageData: ImageData) {
         val cts = CancellationTokenSource()
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         //Check Location Permission
@@ -412,22 +407,21 @@ class BrowseActivity : AppCompatActivity() {
                     return
                 }
         }
-        for (image: ImageData in imageDataList) {
-            mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
-                var location = Location(
-                    latitude = it.latitude.toDouble(),
-                    longitude = it.longitude.toDouble()
-                )
-                // Update the database with the new location
+        //for (image: ImageData in imageDataList) {
+        mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
+            var location = Location(
+                latitude = it.latitude.toDouble(),
+                longitude = it.longitude.toDouble()
+            )
+            // Update the database with the new location
+            browseViewModel?.viewModelScope?.launch(Dispatchers.IO) {
                 var location_id = browseViewModel?.getNextLocationId()
-                browseViewModel?.insertLocationData(location)
-                //var location_id = insertData(location)
-
+                imageData.location = location_id
                 // Update the database with the newly created object
-                image.location = location_id
-                browseViewModel?.updateImageData(image)
-                //updateData(image)
+                browseViewModel?.updateImageData(imageData)
             }
+            browseViewModel?.insertLocationData(location)
         }
+        //}
     }
 }
