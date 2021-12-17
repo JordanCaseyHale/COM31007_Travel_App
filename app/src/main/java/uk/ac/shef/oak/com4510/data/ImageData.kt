@@ -1,3 +1,8 @@
+/**
+ * This class represents the table in the database for Image Elements.
+ *
+ */
+
 package uk.ac.shef.oak.com4510.data
 
 import android.graphics.Bitmap
