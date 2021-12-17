@@ -1,3 +1,6 @@
+/**
+ * Class containing hte Location Table and Location Object.
+ */
 package uk.ac.shef.oak.com4510.data
 
 import androidx.room.ColumnInfo
