@@ -22,6 +22,9 @@ import uk.ac.shef.oak.com4510.view.MainActivity
 import java.text.DateFormat
 import java.util.*
 
+/**
+ * Class containing the code for Journey.
+ */
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var mLocationRequest: LocationRequest
@@ -32,6 +35,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var mButtonEnd: Button? = null
     private var mButtonBack: Button? = null
 
+    // Initialisation method.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,14 +45,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment!!.getMapAsync(this)
         mButtonStart = findViewById<View>(R.id.button_start) as Button
+
+        // when the start button is pressed
         mButtonStart!!.setOnClickListener {
+            // Start the location updates.
             startLocationUpdates()
+            // switch to the end button
             if (mButtonEnd != null) mButtonEnd!!.isEnabled = true
+            // disable the start button
             mButtonStart!!.isEnabled = false
         }
         mButtonStart!!.isEnabled = false
         mButtonEnd = findViewById<View>(R.id.button_end) as Button
+        // when the end button is pressed
         mButtonEnd!!.setOnClickListener {
+            // End location updates.
             stopLocationUpdates()
             if (mButtonStart != null) mButtonStart!!.isEnabled = true
             mButtonEnd!!.isEnabled = false
@@ -62,6 +73,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Requests location permission from the user. Then takes the initial location and
+     * add it to the database.
+     */
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
                 this,

@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment
 import uk.ac.shef.oak.com4510.databinding.MapBinding
 import uk.ac.shef.oak.com4510.view.BasicMapActivity
 
+/**
+ * Class contains the fragment for Basic Map
+ */
 class BasicMapFragment  : Fragment() {
 
     private var _binding: MapBinding? = null
@@ -17,6 +20,7 @@ class BasicMapFragment  : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    // Initialisiation method.
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,6 +34,7 @@ class BasicMapFragment  : Fragment() {
 
     }
 
+    // View Created method:
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

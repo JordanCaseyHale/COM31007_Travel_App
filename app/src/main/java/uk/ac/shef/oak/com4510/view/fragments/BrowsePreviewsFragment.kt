@@ -9,7 +9,9 @@ import androidx.fragment.app.Fragment
 import uk.ac.shef.oak.com4510.databinding.BrowsePreviewsBinding
 import uk.ac.shef.oak.com4510.view.BrowseActivity
 
-
+/**
+ * Class for Browsing Previews
+ */
 class BrowsePreviewsFragment : Fragment() {
     private var _binding: BrowsePreviewsBinding? = null
 
@@ -17,6 +19,7 @@ class BrowsePreviewsFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    // Initialision methods
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

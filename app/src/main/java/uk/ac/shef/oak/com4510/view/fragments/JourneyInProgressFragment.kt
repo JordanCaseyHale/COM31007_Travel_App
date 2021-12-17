@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment
 import uk.ac.shef.oak.com4510.MapsActivity
 import uk.ac.shef.oak.com4510.databinding.ActivityMapsBinding
 
+/**
+ * Fragment Class for the Journey section.
+ */
 class JourneyInProgressFragment : Fragment() {
 
     private var _binding: ActivityMapsBinding? = null
