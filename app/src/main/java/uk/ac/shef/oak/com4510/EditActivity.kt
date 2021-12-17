@@ -31,7 +31,6 @@ class EditActivity : AppCompatActivity() {
             position = bundle.getInt("position")
             if (position != -1) {
                 val imageView = findViewById<ImageView>(R.id.edit_image)
-                val titleEditToolbar = findViewById<Toolbar>(R.id.editor_toolbar)
                 val descriptionTextInput =
                     findViewById<TextInputEditText>(R.id.edit_image_description)
 
