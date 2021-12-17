@@ -6,7 +6,9 @@ import uk.ac.shef.oak.com4510.data.ImageDataDao
 import uk.ac.shef.oak.com4510.data.ImageRoomDatabase
 import uk.ac.shef.oak.com4510.data.Location
 
-
+/**
+ * Model class for Map History.
+ */
 class MapHistoryRepository(application: Application) {
     private var daoObj: ImageDataDao? = null
 
