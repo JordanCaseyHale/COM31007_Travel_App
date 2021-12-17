@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510.view
 
 import android.Manifest
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -45,6 +46,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import pl.aprilapps.easyphotopicker.*
+import uk.ac.shef.oak.com4510.MapsActivity
 import uk.ac.shef.oak.com4510.data.Location
 import java.util.ArrayList
 
@@ -67,9 +69,9 @@ class BrowseActivity : AppCompatActivity() {
         private const val REQUEST_READ_EXTERNAL_STORAGE = 2987
         private const val REQUEST_WRITE_EXTERNAL_STORAGE = 7829
         private const val REQUEST_CAMERA_CODE = 100
-
-
+        private const val ACCESS_FINE_LOCATION = 123
     }
+
     val startForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -187,6 +189,10 @@ class BrowseActivity : AppCompatActivity() {
         //TODO: remove code
         var insertJob = async { daoObj.insert(location) }
         insertJob.await().toInt()
+    }
+
+    private fun updateData(imageData: ImageData) = runBlocking {
+        daoObj.update(imageData)
     }
 
     /**
@@ -320,13 +326,13 @@ class BrowseActivity : AppCompatActivity() {
         mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
     }
 
-    /**
-     * add the selected images to the grid
-     * @param returnedPhotos
-     */
+
     @SuppressLint("NotifyDataSetChanged")
     private fun onImageTaken(returnedPhotos: Array<MediaFile>) {
-        myDataset.addAll(getImageTakenData(returnedPhotos))
+        val imageDataList: List<ImageData> = getImageData(returnedPhotos)
+        myDataset.addAll(imageDataList)
+        //call function to update location of image taken
+        updateLocation(imageDataList)
 
         // we tell the adapter that the data is changed and hence the grid needs
         // refreshing
@@ -372,45 +378,52 @@ class BrowseActivity : AppCompatActivity() {
         return imageDataList
     }
 
-    private var currentLocation: android.location.Location? = null
-    private fun getImageTakenData(returnedPhotos: Array<MediaFile>): List<ImageData> {
-        val imageDataList: MutableList<ImageData> = ArrayList<ImageData>()
-        for (mediaFile in returnedPhotos) {
-            //Get current location
-            var cts = CancellationTokenSource()
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+    private fun updateLocation(imageDataList: List<ImageData>) {
+        val cts = CancellationTokenSource()
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                ACCESS_FINE_LOCATION
+            )
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) != PackageManager.PERMISSION_GRANTED
-            )
-            mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
-                Log.i("LocationOfImage", it.latitude.toString())
-                currentLocation!!.latitude = it.latitude
-                currentLocation!!.longitude = it.longitude
-            }
-            Log.i("AttemptLocation", currentLocation!!.latitude.toString())
-            var location = Location(
-                latitude = currentLocation!!.latitude.toDouble(),
-                longitude = currentLocation!!.longitude.toDouble()
-            )
-            // Update the database with the new location
-            var location_id = insertData(location)
-
-            var imageData = ImageData(
-                imageUri = mediaFile.file.absolutePath,
-                location = location_id,
-                imageDescription = mediaFile.file.name
-            )
-            // Update the database with the newly created object
-            var id = insertData(imageData)
-            imageData.imageId = id
-            imageDataList.add(imageData)
+                ) != PackageManager.PERMISSION_GRANTED) {
+                    Log.i("Permission", "no")
+                    return
+                }
         }
-        return imageDataList
-    }
+        for (image: ImageData in imageDataList) {
+            mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
+                var location = Location(
+                    latitude = it.latitude.toDouble(),
+                    longitude = it.longitude.toDouble()
+                )
+                // Update the database with the new location
+                var location_id = insertData(location)
 
+
+                // Update the database with the newly created object
+                image.location = location_id
+                updateData(image)
+                Log.i("location", "yay")
+            }.addOnFailureListener { Log.i("location", "sad") }
+        }
+        Log.i("Permission", "got to end")
+    }
 }
