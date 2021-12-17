@@ -1,3 +1,6 @@
+/**
+ * Class containing the Image Room Databases.
+ */
 package uk.ac.shef.oak.com4510.data
 
 import android.content.Context
