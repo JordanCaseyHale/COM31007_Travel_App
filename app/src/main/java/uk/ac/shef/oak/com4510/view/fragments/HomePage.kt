@@ -10,6 +10,9 @@ import androidx.navigation.fragment.findNavController
 import uk.ac.shef.oak.com4510.R
 import uk.ac.shef.oak.com4510.databinding.HomePageBinding
 
+/**
+ * Fragment Class for the HomePage
+ */
 class HomePage : Fragment() {
 
     private var _binding: HomePageBinding? = null
@@ -18,6 +21,7 @@ class HomePage : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    // Initialisation Methods.
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,9 +41,6 @@ class HomePage : Fragment() {
         binding.homePagePicturePreview.setOnClickListener {
             findNavController().navigate(R.id.action_HomePage_to_BrowsePreviews)
         }
-        //binding.homePageMapButton.setOnClickListener {
-            //findNavController().navigate(R.id.action_HomePage_to_Map)
-        //}
         binding.homePageMapHistory.setOnClickListener {
             findNavController().navigate(R.id.action_HomePage_to_MapHistory)
         }
