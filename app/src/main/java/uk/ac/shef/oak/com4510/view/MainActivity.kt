@@ -69,9 +69,4 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
-
-    public fun changeToMapsActivity() {
-        Log.i("Journey", "Change to maps activity")
-        val navController = findNavController(R.id.nav_host_fragment)
-    }
 }

@@ -1,6 +1,5 @@
 package uk.ac.shef.oak.com4510
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -13,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import uk.ac.shef.oak.com4510.data.ImageData
 import kotlinx.coroutines.*
 import uk.ac.shef.oak.com4510.view.BrowseActivity
-import uk.ac.shef.oak.com4510.view.BrowsePreviewsFragment
-import uk.ac.shef.oak.com4510.view.MainActivity
 
 
 class MyAdapter : RecyclerView.Adapter<MyAdapter.ViewHolder> {

@@ -1,7 +1,6 @@
 package uk.ac.shef.oak.com4510.view
 
 import android.Manifest
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -13,12 +12,10 @@ import android.media.ExifInterface
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -27,7 +24,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -46,8 +43,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import pl.aprilapps.easyphotopicker.*
-import uk.ac.shef.oak.com4510.MapsActivity
 import uk.ac.shef.oak.com4510.data.Location
+import uk.ac.shef.oak.com4510.viewmodel.BrowseViewModel
 import java.util.ArrayList
 
 
@@ -63,6 +60,7 @@ class BrowseActivity : AppCompatActivity() {
     private lateinit var easyImage: EasyImage
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private var camera:Boolean = false
+    private var browseViewModel: BrowseViewModel? = null
 
     companion object {
         val ADAPTER_ITEM_DELETED = 100
@@ -95,9 +93,14 @@ class BrowseActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         daoObj = (this@BrowseActivity.application as ImageApplication).databaseObj.imageDataDao()
+        browseViewModel = ViewModelProvider(this)[BrowseViewModel::class.java]
 
         setContentView(R.layout.activity_gallery)
-        initData()
+        //initData()
+        var data = browseViewModel?.getImageData()
+        if (data != null) {
+            myDataset.addAll(data)
+        }
         activity = this
         Log.d("TAG", "message")
         mRecyclerView = findViewById(R.id.grid_recycler_view)
@@ -363,7 +366,9 @@ class BrowseActivity : AppCompatActivity() {
                 longitude = long?.toDouble()
             )
             // Update the database with the new location
-            var location_id = insertData(location)
+            var location_id = browseViewModel?.getNextLocationId()
+            browseViewModel?.insertLocationData(location)
+            //var location_id = insertData(location)
 
             var imageData = ImageData(
                 imageUri = mediaFile.file.absolutePath,
@@ -371,9 +376,13 @@ class BrowseActivity : AppCompatActivity() {
                 imageDescription = mediaFile.file.name
             )
             // Update the database with the newly created object
-            var id = insertData(imageData)
-            imageData.imageId = id
-            imageDataList.add(imageData)
+            var id = browseViewModel?.getNextImageId()
+            browseViewModel?.insertImageData(imageData)
+            //var id = insertData(imageData)
+            if (id != null) {
+                imageData.imageId = id
+                imageDataList.add(imageData)
+            }
         }
         return imageDataList
     }
@@ -381,6 +390,7 @@ class BrowseActivity : AppCompatActivity() {
     private fun updateLocation(imageDataList: List<ImageData>) {
         val cts = CancellationTokenSource()
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        //Check Location Permission
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -389,17 +399,12 @@ class BrowseActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            //Request Location Permission
             ActivityCompat.requestPermissions(
                 this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 ACCESS_FINE_LOCATION
             )
+            // If Location Permission Denied then return and don't use location
             if (ActivityCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -414,12 +419,14 @@ class BrowseActivity : AppCompatActivity() {
                     longitude = it.longitude.toDouble()
                 )
                 // Update the database with the new location
-                var location_id = insertData(location)
-
+                var location_id = browseViewModel?.getNextLocationId()
+                browseViewModel?.insertLocationData(location)
+                //var location_id = insertData(location)
 
                 // Update the database with the newly created object
                 image.location = location_id
-                updateData(image)
+                browseViewModel?.updateImageData(image)
+                //updateData(image)
             }
         }
     }

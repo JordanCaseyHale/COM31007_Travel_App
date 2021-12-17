@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/HomePage"
-        android:name="uk.ac.shef.oak.com4510.view.HomePage"
+        android:name="uk.ac.shef.oak.com4510.view.fragments.HomePage"
         android:label="Home Page"
         tools:layout="@layout/home_page">
 
@@ -26,7 +26,7 @@
     </fragment>
     <fragment
         android:id="@+id/JourneyStart"
-        android:name="uk.ac.shef.oak.com4510.view.JourneyStartFragment"
+        android:name="uk.ac.shef.oak.com4510.view.fragments.JourneyStartFragment"
         android:label="Journey Start"
         tools:layout="@layout/journey_start">
 
@@ -36,7 +36,7 @@
     </fragment>
     <fragment
         android:id="@+id/JourneyInProgress"
-        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.fragments.JourneyInProgressFragment"
         android:label="Journey In Progress"
         tools:layout="@layout/activity_maps">
 
@@ -46,25 +46,25 @@
     </fragment>
     <fragment
         android:id="@+id/MapHistory"
-        android:name="uk.ac.shef.oak.com4510.view.MapHistoryFragment"
+        android:name="uk.ac.shef.oak.com4510.view.fragments.MapHistoryFragment"
         android:label="Map History"
         tools:layout="@layout/map_history">
     </fragment>
     <fragment
         android:id="@+id/BrowsePreviews"
-        android:name="uk.ac.shef.oak.com4510.view.BrowsePreviewsFragment"
+        android:name="uk.ac.shef.oak.com4510.view.fragments.BrowsePreviewsFragment"
         android:label="Browse Previews"
         tools:layout="@layout/activity_gallery">
     </fragment>
     <fragment
         android:id="@+id/PreviewsMoreDetails"
-        android:name="uk.ac.shef.oak.com4510.view.JourneyInProgressFragment"
+        android:name="uk.ac.shef.oak.com4510.view.fragments.JourneyInProgressFragment"
         android:label="Preview More Details"
         tools:layout="@layout/activity_show_image">
     </fragment>
     <fragment
         android:id="@+id/Map"
-        android:name="uk.ac.shef.oak.com4510.view.BasicMapFragment"
+        android:name="uk.ac.shef.oak.com4510.view.fragments.BasicMapFragment"
         android:label="Map"
         tools:layout="@layout/map">
     </fragment>

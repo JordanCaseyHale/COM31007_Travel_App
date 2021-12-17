@@ -27,7 +27,6 @@ class BasicMapActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = MapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         binding.BasicMapBack.setOnClickListener {
             setContentView(R.layout.activity_main)
             val intent = Intent (this, MainActivity::class.java)

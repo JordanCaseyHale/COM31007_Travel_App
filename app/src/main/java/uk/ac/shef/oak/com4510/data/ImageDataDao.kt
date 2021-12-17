@@ -13,7 +13,7 @@ import androidx.room.Update
 @Dao
 interface ImageDataDao {
     @Query("SELECT * from image ORDER by imageId ASC")
-    suspend fun getItems(): List<ImageData>
+    fun getItems(): List<ImageData>
 
     @Query("SELECT * from image WHERE imageId = :id")
     fun getItem(id: Int): ImageData
@@ -21,20 +21,26 @@ interface ImageDataDao {
     @Query("SELECT * from location ORDER BY locationId ASC")
     fun getLocations(): List<Location>
 
+    @Query("SELECT MAX(imageId) FROM image")
+    fun getMaxImageId(): Int
+
+    @Query("SELECT MAX(locationId) FROM location")
+    fun getMaxLocationId(): Int
+
     // Specify the conflict strategy as REPLACE,
     // when the trying to add an existing Item
     // into the database.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(singleImageData: ImageData): Long
+    fun insert(singleImageData: ImageData): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(singleLocation: Location): Long
+    fun insert(singleLocation: Location): Long
 
     @Update
-    suspend fun update(imageData: ImageData)
+    fun update(imageData: ImageData)
 
     @Delete
-    suspend fun delete(imageData: ImageData)
+    fun delete(imageData: ImageData)
 
 
 }

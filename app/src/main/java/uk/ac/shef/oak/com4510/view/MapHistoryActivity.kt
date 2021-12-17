@@ -2,38 +2,29 @@ package uk.ac.shef.oak.com4510.view
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.ui.AppBarConfiguration
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import uk.ac.shef.oak.com4510.ImageApplication
 import uk.ac.shef.oak.com4510.R
-import uk.ac.shef.oak.com4510.data.ImageData
-import uk.ac.shef.oak.com4510.data.ImageDataDao
 import uk.ac.shef.oak.com4510.databinding.MapHistoryBinding
-import java.util.ArrayList
-import android.media.ExifInterface
-import android.view.View
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import pl.aprilapps.easyphotopicker.EasyImage
-import uk.ac.shef.oak.com4510.data.Location
+import uk.ac.shef.oak.com4510.viewmodel.MapHistoryViewModel
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 
-
+// Map History View
 class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
+
     private lateinit var mMap: GoogleMap
     private lateinit var binding: MapHistoryBinding
-    private var myDataset: MutableList<ImageData> = ArrayList<ImageData>()
-    private lateinit var daoObj: ImageDataDao
-    private var locationData: MutableList<Location> = ArrayList<Location>()
     private lateinit var easyImage: EasyImage
+    private var mapHistoryViewModel: MapHistoryViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +32,8 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = MapHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        daoObj = (this@MapHistoryActivity.application as ImageApplication).databaseObj.imageDataDao()
+        mapHistoryViewModel = ViewModelProvider(this)[MapHistoryViewModel::class.java]
 
-        initData()
-
-        initLocationData()
 
         //initEasyImage()
 
@@ -68,13 +56,7 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * When the map is ready, add the images as markers on the map
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
@@ -83,41 +65,42 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
         val sheffield = LatLng(53.377, -1.476)
         val zoomLevel = 16.0f //This goes up to 21
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sheffield, zoomLevel))
-        for (image in myDataset) {
-            image.location?.apply {
-                var lat: Double? = null
-                var long: Double? = null
-                for (location in locationData) {
-                    if (location.locationId == image.location) {
-                        lat = location.latitude
-                        long = location.longitude
+        var imageData = mapHistoryViewModel?.getImageData()
+        if (imageData != null) {
+            for (image in imageData) {
+                image.location?.apply {
+                    var lat: Double? = null
+                    var long: Double? = null
+                    var locationData = mapHistoryViewModel?.getLocationData()
+                    if (locationData != null) {
+                        for (location in locationData) {
+                            if (location.locationId == image.location) {
+                                lat = location.latitude
+                                long = location.longitude
+                            }
+                        }
                     }
-                }
-                lat?.apply{
-                    long?.apply{
-                        mMap.addMarker(MarkerOptions().position(LatLng(lat, long)).title(image.imageDescription))
+                    // If there is a location
+                    lat?.apply {
+                        long?.apply {
+                            // Convert the image into an icon to display on the map
+                            val height = 160
+                            val width = 160
+                            val bmOptions = BitmapFactory.Options()
+                            val bm = BitmapFactory.decodeFile(image.imageUri, bmOptions)
+                            val smallMarker = Bitmap.createScaledBitmap(bm, width, height, false)
+                            val smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker)
+
+                            // Add marker
+                            mMap.addMarker(
+                                MarkerOptions().position(LatLng(lat, long))
+                                    .title(image.imageDescription).icon(smallMarkerIcon))
+                        }
                     }
                 }
             }
         }
     }
 
-    /**
-     * Init data by loading from the database
-     */
-    private fun initData() {
-        GlobalScope.launch {
-            daoObj = (this@MapHistoryActivity.application as ImageApplication).databaseObj.imageDataDao()
-            var data = daoObj.getItems()
-            myDataset.addAll(data)
-        }
-    }
 
-    private fun initLocationData() {
-        GlobalScope.launch {
-            daoObj = (this@MapHistoryActivity.application as ImageApplication).databaseObj.imageDataDao()
-            var data = daoObj.getLocations()
-            locationData.addAll(data)
-        }
-    }
 }
