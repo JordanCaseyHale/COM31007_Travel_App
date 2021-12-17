@@ -35,14 +35,6 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
         mapHistoryViewModel = ViewModelProvider(this)[MapHistoryViewModel::class.java]
 
 
-        //initEasyImage()
-
-        // the floating button that will allow us to get the images from the Gallery
-        //val fabGallery: FloatingActionButton = findViewById(R.id.fab_gallery)
-        //fabGallery.setOnClickListener(View.OnClickListener {
-            //easyImage.openChooser(this@MapHistoryActivity)
-        //})
-
         binding.MapHistoryBack.setOnClickListener {
             setContentView(R.layout.activity_main)
             val intent = Intent (this, MainActivity::class.java)

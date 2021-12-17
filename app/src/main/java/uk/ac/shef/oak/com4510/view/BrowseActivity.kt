@@ -180,15 +180,14 @@ class BrowseActivity : AppCompatActivity() {
      * insert a ImageData into the database
      * Called for each image the user adds by clicking the fab button
      * Then retrieves the same image so we can have the automatically assigned id field
+     * @param - imageData - the Image to be inserted.
      */
     private fun insertData(imageData: ImageData): Int = runBlocking {
-        //TODO: remove code
         var insertJob = async { daoObj.insert(imageData) }
         insertJob.await().toInt()
     }
 
     private fun insertData(location: Location): Int = runBlocking {
-        //TODO: remove code
         var insertJob = async { daoObj.insert(location) }
         insertJob.await().toInt()
     }
@@ -376,8 +375,7 @@ class BrowseActivity : AppCompatActivity() {
 
                 // we tell the adapter that the data is changed and hence the grid needs
                 // refreshing
-                //mAdapter.notifyDataSetChanged()
-                //mRecyclerView.scrollToPosition(returnedPhotos.size - 1)
+
             }
         }
     }
@@ -407,7 +405,6 @@ class BrowseActivity : AppCompatActivity() {
                     return
                 }
         }
-        //for (image: ImageData in imageDataList) {
         mFusedLocationClient.getCurrentLocation(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, cts.token).addOnSuccessListener {
             var location = Location(
                 latitude = it.latitude.toDouble(),
@@ -422,6 +419,5 @@ class BrowseActivity : AppCompatActivity() {
             }
             browseViewModel?.insertLocationData(location)
         }
-        //}
     }
 }
