@@ -79,38 +79,20 @@ class MapHistoryActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
+        // Move the camera
         val sheffield = LatLng(53.377, -1.476)
-        mMap.addMarker(MarkerOptions().position(sheffield).title("Marker in Sheffield"))
         val zoomLevel = 16.0f //This goes up to 21
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sheffield, zoomLevel))
-        Log.i("LocationData", "Start output of location data")
         for (image in myDataset) {
-            Log.i("LocationData", image.imageDescription.toString())
-            Log.i("LocationData", image.imageUri)
-            //val exifInterface = ExifInterface(image.imageUri)
-            //val latLong = FloatArray(2)
-            //if (exifInterface.getLatLong(latLong)) {
-                // Do stuff with lat / long...
-                //Log.i("LocationData", latLong[0].toString())
-            //}
             image.location?.apply {
                 var lat: Double? = null
                 var long: Double? = null
-                Log.i("LocationID", image.location.toString())
                 for (location in locationData) {
-                    Log.i("LocationDataTestID", location.locationId.toString())
                     if (location.locationId == image.location) {
-                        Log.i("LocationDataAcceptID", location.locationId.toString())
                         lat = location.latitude
                         long = location.longitude
-                        Log.i("LocationDataAcceptlat", location.latitude.toString())
-                        Log.i("LocationDataAcceptlong", location.longitude.toString())
                     }
                 }
-                Log.i("LocationData2", lat.toString())
-                Log.i("LocationData2", long.toString())
-                Log.i("LocationData2", image.imageDescription.toString())
                 lat?.apply{
                     long?.apply{
                         mMap.addMarker(MarkerOptions().position(LatLng(lat, long)).title(image.imageDescription))

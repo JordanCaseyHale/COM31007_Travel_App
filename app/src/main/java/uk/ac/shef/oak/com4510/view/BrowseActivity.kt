@@ -404,7 +404,6 @@ class BrowseActivity : AppCompatActivity() {
                     this,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) != PackageManager.PERMISSION_GRANTED) {
-                    Log.i("Permission", "no")
                     return
                 }
         }
@@ -421,9 +420,7 @@ class BrowseActivity : AppCompatActivity() {
                 // Update the database with the newly created object
                 image.location = location_id
                 updateData(image)
-                Log.i("location", "yay")
-            }.addOnFailureListener { Log.i("location", "sad") }
+            }
         }
-        Log.i("Permission", "got to end")
     }
 }
