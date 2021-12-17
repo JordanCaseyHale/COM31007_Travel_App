@@ -25,10 +25,10 @@ interface ImageDataDao {
     suspend fun getJournies(): List<Journey>
 
     @Query("SELECT * from journey WHERE journeyId = :id")
-    fun getJounrey(id: Int): Journey
+    fun getJourney(id: Int): Journey
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertJourney(singleJourney: Journey): Long
+    suspend fun insert(singleJourney: Journey): Long
 
    // @Insert(onConflict = OnConflictStrategy.REPLACE)
    // suspend fun insertLocation(singleLocation: Location): Long

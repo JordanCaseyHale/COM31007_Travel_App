@@ -6,45 +6,64 @@ import android.app.PendingIntent.getActivity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.room.Room
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import uk.ac.shef.oak.com4510.data.*
-import uk.ac.shef.oak.com4510.databinding.ActivityMapsBinding
+//import uk.ac.shef.oak.com4510.databinding.ActivityMapsBinding
 import uk.ac.shef.oak.com4510.view.MainActivity
 import java.text.DateFormat
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mMap: GoogleMap
     private lateinit var mLocationRequest: LocationRequest
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
-    private lateinit var binding: ActivityMapsBinding
+   // private lateinit var binding: ActivityMapsBinding
     private lateinit var daoObj: ImageDataDao
-    private lateinit var startLocation : Location
-    private lateinit var endLocation : Location
+    private lateinit var startLocation : uk.ac.shef.oak.com4510.data.Location
+    private lateinit var endLocation : uk.ac.shef.oak.com4510.data.Location
+    private lateinit var startTime: String
+    private var startLocationID : Int? = null
+    private var endLocationID : Int? = null
+    private lateinit var startDate: String
+    private lateinit var endTime : String
+    private lateinit var journeyTitle : String
     private var myDataset: MutableList<Journey> = ArrayList<Journey>()
     private val mapView: MapView? = null
     private var mButtonStart: Button? = null
     private var mButtonEnd: Button? = null
     private var mButtonBack: Button? = null
+    //private var initialStartButton : Button? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        daoObj = (this@MapsActivity.application as ImageApplication).databaseObj.imageDataDao()
 
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -52,11 +71,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment!!.getMapAsync(this)
         mButtonStart = findViewById<View>(R.id.button_start) as Button
-        mButtonStart!!.setOnClickListener {
+        val initialStartButton = findViewById(R.id.JourneyStart) as Button
+        println("The initial start button is: "+initialStartButton)
+        journeyTitle = (findViewById(R.id.editVisitTitle) as? EditText).toString()
+
+        // First page start button:
+        initialStartButton!!.setOnClickListener{
+            Log.i("Start3","The button has been clicked")
+            Log.i("Start3","The title of the journey is: "+ journeyTitle)
             startLocationUpdates()
             if (mButtonEnd != null) mButtonEnd!!.isEnabled = true
             mButtonStart!!.isEnabled = false
         }
+
+        // attach listener to start button initially
+        mButtonStart!!.setOnClickListener{
+            Log.i("Start3","The button has been clicked")
+            Log.i("Start3","The title of the journey is: "+ journeyTitle)
+            startLocationUpdates()
+            if (mButtonEnd != null) mButtonEnd!!.isEnabled = true
+            mButtonStart!!.isEnabled = false
+        }
+        // start but is then disabled
         mButtonStart!!.isEnabled = false
         mButtonEnd = findViewById<View>(R.id.button_end) as Button
         mButtonEnd!!.setOnClickListener {
@@ -74,25 +110,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
     private fun initJournies() {
         GlobalScope.launch {
-            daoObj = (this@MapsActivity.application as ImageApplication).databaseObj.imageDataDao()
             var journies = daoObj.getJournies()
             myDataset.addAll(journies)
         }
     }
 
-    private fun insertJourney(journey: Journey): Int = runBlocking {
-        var insertJob = async { daoObj.insertJourney(journey) }
+
+    private fun insertData(location: uk.ac.shef.oak.com4510.data.Location): Int = runBlocking {
+
+        var insertJob = async { daoObj.insert(location) }
         insertJob.await().toInt()
     }
 
-    private fun insertData(location: Location): Int = runBlocking {
-        //TODO: remove code
-        var locationObj = Location(
-            latitude = location.getLatitude(),
-            longitude = location.getLongitude()
-        )
+    private fun insertData(journey: Journey): Int = runBlocking {
 
-        var insertJob = async { daoObj.insert(locationObj) }
+        var insertJob = async { daoObj.insert(journey) }
         insertJob.await().toInt()
     }
 
@@ -100,6 +132,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val journies : MutableList<Journey> = ArrayList<Journey>()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -135,8 +168,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         mFusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
             if (location != null) {
-                startLocation = location
-                insertData(location)
+                startLocation = Location(
+                    longitude = location.longitude,
+                    latitude =  location.latitude
+                )
+                startTime = java.time.LocalTime.now().toString()
+                startDate = java.time.LocalDate.now().toString()
+                startLocationID = startLocation.locationId
+                insertData(startLocation)
             }
         }
         mFusedLocationClient.requestLocationUpdates(
@@ -149,6 +188,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     /**
      * it stops the location updates
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun stopLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -168,21 +208,38 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         mFusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            println("The last location is : "+ location)
             if (location != null) {
-                endLocation = location
-                insertData(location)
+                endLocation = Location(
+                    longitude = location.longitude,
+                    latitude =  location.latitude
+                )
+                endTime = java.time.LocalTime.now().toString()
+                endLocationID = endLocation.locationId
+                insertData(endLocation)
             }
         }
         mFusedLocationClient.removeLocationUpdates(mLocationCallback)
 
         // adds the completed journey to the database
-        if (startLocation!= null && endLocation != null) {
+       // println("The journey title is: "+journeyTitle)
+        println(" This is the first part" + startLocationID)
+        println( " This is the second aprt" + endLocationID)
+        if (startLocationID!= null && endLocationID != null) {
             var journey = Journey(
-                title, time, endtime, date
+                title=journeyTitle,
+                time = startTime,
+                endTime= endTime,
+                date= startDate,
+                startLocId = startLocationID,
+                endLocId = endLocationID
             )
+
+            insertData(journey)
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
         mLocationRequest = LocationRequest.create().apply {
