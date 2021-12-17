@@ -18,8 +18,11 @@ import com.google.android.gms.maps.*
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import uk.ac.shef.oak.com4510.data.ImageRoomDatabase
-import uk.ac.shef.oak.com4510.data.Journey
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import uk.ac.shef.oak.com4510.data.*
 import uk.ac.shef.oak.com4510.databinding.ActivityMapsBinding
 import uk.ac.shef.oak.com4510.view.MainActivity
 import java.text.DateFormat
@@ -30,6 +33,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mLocationRequest: LocationRequest
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var binding: ActivityMapsBinding
+    private lateinit var daoObj: ImageDataDao
+    private lateinit var startLocation : Location
+    private lateinit var endLocation : Location
+    private var myDataset: MutableList<Journey> = ArrayList<Journey>()
     private val mapView: MapView? = null
     private var mButtonStart: Button? = null
     private var mButtonEnd: Button? = null
@@ -37,12 +44,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // creating the database
-        val journeyDB = Room.databaseBuilder(
-            applicationContext,
-            ImageRoomDatabase ::class.java,"journey"
-        )
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -69,6 +71,33 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val intent = Intent (mapFragment.activity, MainActivity::class.java)
             mapFragment.requireActivity().startActivity(intent)
         }
+    }
+    private fun initJournies() {
+        GlobalScope.launch {
+            daoObj = (this@MapsActivity.application as ImageApplication).databaseObj.imageDataDao()
+            var journies = daoObj.getJournies()
+            myDataset.addAll(journies)
+        }
+    }
+
+    private fun insertJourney(journey: Journey): Int = runBlocking {
+        var insertJob = async { daoObj.insertJourney(journey) }
+        insertJob.await().toInt()
+    }
+
+    private fun insertData(location: Location): Int = runBlocking {
+        //TODO: remove code
+        var locationObj = Location(
+            latitude = location.getLatitude(),
+            longitude = location.getLongitude()
+        )
+
+        var insertJob = async { daoObj.insert(locationObj) }
+        insertJob.await().toInt()
+    }
+
+    private fun getInitLocationData() {
+        val journies : MutableList<Journey> = ArrayList<Journey>()
     }
 
     private fun startLocationUpdates() {
@@ -104,6 +133,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             return
         }
+        mFusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                startLocation = location
+                insertData(location)
+            }
+        }
         mFusedLocationClient.requestLocationUpdates(
             mLocationRequest,
             mLocationCallback,
@@ -115,7 +150,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * it stops the location updates
      */
     private fun stopLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        mFusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                endLocation = location
+                insertData(location)
+            }
+        }
         mFusedLocationClient.removeLocationUpdates(mLocationCallback)
+
+        // adds the completed journey to the database
+        if (startLocation!= null && endLocation != null) {
+            var journey = Journey(
+                title, time, endtime, date
+            )
+        }
     }
 
     override fun onResume() {

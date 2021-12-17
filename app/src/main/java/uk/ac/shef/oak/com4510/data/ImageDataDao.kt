@@ -21,6 +21,18 @@ interface ImageDataDao {
     @Query("SELECT * from location WHERE locationId = :id")
     fun getLocation(id: Int): Location
 
+    @Query("SELECT * from journey ORDER by journeyId DESC")
+    suspend fun getJournies(): List<Journey>
+
+    @Query("SELECT * from journey WHERE journeyId = :id")
+    fun getJounrey(id: Int): Journey
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertJourney(singleJourney: Journey): Long
+
+   // @Insert(onConflict = OnConflictStrategy.REPLACE)
+   // suspend fun insertLocation(singleLocation: Location): Long
+
     // Specify the conflict strategy as REPLACE,
     // when the trying to add an existing Item
     // into the database.
